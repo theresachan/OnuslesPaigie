@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Transaction Successful{% endblock %}
+{% block content %}
+<body>
+<script type="text/javascript">
+    var formData = location.search;
+
+    formData = formData.substring(1, formData.length);
+    while (formData.indexOf("+") != -1) {
+	  formData = formData.replace("+", " ");
+    }
+    formData = unescape(formData);
+    var formArray = formData.split("&");
+    var para=new Array();
+    var email,address1,address2;
+</script>
+<article>
+<h1>Transaction Successful!</h1>
+<h2>Thank you for your order. We are processing your order and will send you an email shortly.</h2>
+<p>Your Email: <span id="email"></span></p>
+<p>Delivery Address: <span id="address1"></span> <span id="address2"></span></p>
+<p>Payment Method: Debit/Credit Card</p>
+<p>Shipping: $10.00</p>
+<p>Sub-Total: $330.00</p>
+<p>Total: $340.00</p>
+</article>
+<script>
+    for (var i=0; i < formArray.length; ++i) {
+    para=formArray[i].split("=");
+
+    switch (para[0]) {
+        case "email":document.getElementById("email").innerHTML=para[1];
+        break;
+        case "address1":document.getElementById("address1").innerHTML=para[1];
+        break;
+        case "address2":document.getElementById("address2").innerHTML=para[1];
+        break;
+    }
+}
+</script>
+<a href="/">Go To Homepage</a>
+</body>
+{% endblock %}
+
