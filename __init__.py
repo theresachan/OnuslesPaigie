@@ -95,6 +95,9 @@ def update_return(id):
 
         return render_template('updateReturn.html', form=update_return_form)
 
+@app.route("/trackShipment")
+def trackShipment():
+    return render_template('trackShipment.html')
 
 @app.route("/aboutus")
 def blog():
