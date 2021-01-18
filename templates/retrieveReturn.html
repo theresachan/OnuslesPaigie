@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Retrieve Users{% endblock %}
+
+{% block content %}
+<section class="product-area shop-sidebar shop section">
+			<div class="container">
+				<div class="row">
+					{% block categories %}
+						{% include 'includes/_categories.html' %}
+					{% endblock %}
+					<div class="col-lg-9 col-md-8 col-12">
+						<div class="row">
+							<div class="col-12">
+								<!-- Shop Top -->
+								<div class="shop-top">
+									<div class="shop-shorter">
+										<div class="single-shorter">
+											<form>
+											<input name="search" placeholder="Search Returns Here....." type="search" id="searchbar">
+											<button class="btnn" id="button1"><i class="ti-search"></i></button>
+											</form>
+										</div>
+									</div>
+								</div>
+								<!--/ End Shop Top -->
+							</div>
+						</div>
+<h1 class="display-4">Return Submitted</h1>
+<div>
+  {% if count == 0 %}
+  <p>There are no return requests.</p>
+  {% elif count == 1 %}
+  <p>There is 1 request.</p>
+  {% else %}
+  <p>There are {{ count }} requests.</p>
+  {% endif %}
+</div>
+
+
+<div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Product ID</th>
+        <th>Quantity</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users_list %}
+      <tr>
+        <td>{{ user.get_user_id() }}</td>
+        <td>{{ user.get_product() }}</td>
+        <td>{{ user.get_quantity() }}</td>
+        <td>{{ user.get_reason() }}</td>
+        {% if user.get_reason() == "D" %}
+        <td>Damaged or defective item(s)</td>
+        {% elif user.get_reason() == "N" %}
+        <td>Not true in size / measurement</td>
+        {% elif user.get_reason() == "P" %}
+        <td>Poor quality of fabric / Faulty</td>
+        {% elif user.get_reason() == "L" %}
+        <td>Look different / Not as described</td>
+        {% elif user.get_reason() == "O" %}
+        <td>Others</td>
+        {% endif %}
+        <td>{{ user.get_remarks() }}</td>
+
+        <td><a href="/updateReturn/{{user.get_user_id()}}" class="btn btn-warning">Update</a></td>
+        <td>
+          <form action="{{url_for('delete_return', id=user.get_user_id())}}"  method="POST">
+<!--            <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you-->
+<!--        sure you want to delete  {#user.get_quantity()#} of {#user.get_product()#}?');">-->
+            <!-- Button to Open the Modal -->
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal_{{user.get_user_id()}}">
+  Delete
+</button>
+
+<!-- The Modal -->
+<div class="modal" id="myModal_{{user.get_user_id()}}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Delete Confirmation</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+       Are you sure you want to delete {{user.get_product()}} {{user.get_quantity()}}?
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <input type="submit" value="Delete" class="btn btn-danger">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<style>
+  #button1 {
+  width: 20px;
+  height: 30px;
+  background: #333333;
+  color: #fff;
+  border: none;
+  border-radius: 0 5px 0px 0;
+  }
+
+  button, input[type="button"], input[type="reset"], input[type="submit"] {
+  background: #333;
+  color: #fff;
+  line-height: normal;
+  }
+
+  #update {
+  color: #fff;
+  }
+
+  .table-striped tbody tr:nth-of-type(odd) {
+  background: none;
+  }
+</style>
+{% endblock %}

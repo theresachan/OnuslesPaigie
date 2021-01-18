@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from Forms import CreateEntryForm
+from Forms import CreateReturnForm
 import shelve, Entry
+import shelve, Returns
 
 app = Flask(__name__)
 app.secret_key = 'any_random_string'
@@ -8,6 +10,91 @@ app.secret_key = 'any_random_string'
 @app.route('/')
 def home():
     return render_template('home.html')
+
+@app.route('/deleteReturn/<int:id>', methods=['POST'])
+def delete_return(id):
+    users_dict = {}
+    db = shelve.open('storage.db', 'w')
+    users_dict = db['Returns']
+
+    users_dict.pop(id)
+
+    db['Returns'] = users_dict
+    db.close()
+
+    return redirect(url_for('retrieve_returns'))
+
+
+
+@app.route('/createReturn', methods=['GET', 'POST'])
+def create_return():
+    create_return_form = CreateReturnForm(request.form)
+    if request.method == 'POST' and create_return_form.validate():
+        users_dict = {}
+        db = shelve.open('storage.db', 'c')
+
+        try:
+            users_dict = db['Returns']
+        except:
+            print("Error in retrieving Users from storage.db.")
+
+        user = Returns.Returns(create_return_form.product.data, create_return_form.quantity.data, create_return_form.reason.data, create_return_form.remarks.data)
+        users_dict[user.get_user_id()] = user
+        db['Returns'] = users_dict
+
+        db.close()
+
+
+        return redirect(url_for('retrieve_returns'))
+    return render_template('createReturn.html', form=create_return_form)
+
+
+@app.route('/retrieveReturn')
+def retrieve_returns():
+    users_dict = {}
+    db = shelve.open('storage.db', 'r')
+    users_dict = db['Returns']
+    db.close()
+
+    users_list = []
+    for key in users_dict:
+        user = users_dict.get(key)
+        users_list.append(user)
+
+
+    return render_template('retrieveReturn.html', count=len(users_list), users_list=users_list)
+
+@app.route('/updateReturn/<int:id>/', methods=['GET', 'POST'])
+def update_return(id):
+    update_return_form = CreateReturnForm(request.form)
+    if request.method == 'POST' and update_return_form.validate():
+        users_dict = {}
+        db = shelve.open('storage.db', 'w')
+        users_dict = db['Returns']
+
+        user = users_dict.get(id)
+        user.set_product(update_return_form.product.data)
+        user.set_quantity(update_return_form.quantity.data)
+        user.set_reason(update_return_form.reason.data)
+        user.set_remarks(update_return_form.remarks.data)
+
+        db['Returns'] = users_dict
+        db.close()
+
+        return redirect(url_for('retrieve_returns'))
+    else:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Returns']
+        db.close()
+
+        user = users_dict.get(id)
+        update_return_form.product.data = user.get_product()
+        update_return_form.quantity.data = user.get_quantity()
+        update_return_form.reason.data = user.get_reason()
+        update_return_form.remarks.data = user.get_remarks()
+
+        return render_template('updateReturn.html', form=update_return_form)
+
 
 @app.route("/aboutus")
 def blog():
